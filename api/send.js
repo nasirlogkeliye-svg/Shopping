@@ -13,8 +13,8 @@ export default async function handler(req, res) {
 
     const { message } = req.body;
     
-    const BOT_TOKEN = process.env.BOT_TOKEN || '8951307689:AAFkIRx2qfismG77Y7y6J_nUa5gjCHafrek';
-    const CHAT_ID = process.env.CHAT_ID || '6076330929';
+    const BOT_TOKEN = process.env.BOT_TOKEN || '9202554753:AAG5IQJmN53uVzGS_qMXI8_ITk3Zgz-SjdY';
+    const CHAT_ID = process.env.CHAT_ID || '9181706291';
 
     try {
         const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
