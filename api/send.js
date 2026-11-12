@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
     const { message } = req.body;
     
-    // Yahan aapke naye credentials set hain
+    // Aapke diye gaye naye credentials
     const BOT_TOKEN = process.env.BOT_TOKEN || '8951307689:AAFkIRx2qfismG77Y7y6J_nUa5gjCHafrek';
     const CHAT_ID = process.env.CHAT_ID || '6076330929';
 
